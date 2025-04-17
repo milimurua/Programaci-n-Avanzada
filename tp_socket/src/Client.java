@@ -13,21 +13,19 @@ public class Client {
                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
                 Scanner scanner = new Scanner(System.in)
         ) {
-            String question = input.readLine();
-            System.out.println(question);
+            String serverMessage;
 
-            String instruction = input.readLine();
-            System.out.println(instruction);
+            while ((serverMessage = input.readLine()) != null) {
+                System.out.println(serverMessage);
 
-            String userAnswer = scanner.nextLine();
-            output.println(userAnswer);
-
-            String result = input.readLine();
-            System.out.println(result);
+                if (serverMessage.contains("Type your answer")) {
+                    String userAnswer = scanner.nextLine();
+                    output.println(userAnswer);
+                }
+            }
 
         } catch (IOException e) {
             System.err.println("Client error: " + e.getMessage());
         }
     }
 }
-

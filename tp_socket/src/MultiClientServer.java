@@ -14,15 +14,14 @@ public class MultiClientServer {
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Multi-client server started on port " + PORT);
+            System.out.println("Server running on port " + PORT);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress());
-
-                Thread clientThread = new Thread(new ClientHandler(clientSocket));
-                clientThread.start();
+                new Thread(new ClientHandler(clientSocket)).start();
             }
+
         } catch (IOException e) {
             System.err.println("Server error: " + e.getMessage());
         }
@@ -41,28 +40,33 @@ public class MultiClientServer {
                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     PrintWriter output = new PrintWriter(socket.getOutputStream(), true)
             ) {
-                Question question = questions.get(new Random().nextInt(questions.size()));
-                output.println("Question: " + question.getText());
-                output.println("Type your answer (or 'exit' to quit):");
+                String userResponse;
 
-                String response = input.readLine();
+                do {
+                    Question question = questions.get(new Random().nextInt(questions.size()));
+                    output.println("Question: " + question.getText());
+                    output.println("Type your answer (or 'exit' to quit):");
 
-                if (response == null || response.equalsIgnoreCase("exit")) {
-                    output.println("Connection closed by client.");
-                } else if (response.trim().equalsIgnoreCase(question.getAnswer())) {
-                    output.println("Correct answer!");
-                } else {
-                    output.println("Incorrect. The correct answer is: " + question.getAnswer());
-                }
+                    userResponse = input.readLine();
+                    if (userResponse == null || userResponse.equalsIgnoreCase("exit")) {
+                        output.println("Connection closed. Goodbye!");
+                        break;
+                    } else if (userResponse.trim().equalsIgnoreCase(question.getAnswer())) {
+                        output.println("✅ Correct!");
+                    } else {
+                        output.println("❌ Incorrect. Correct answer was: " + question.getAnswer());
+                    }
+
+                } while (true);
 
             } catch (IOException e) {
-                System.err.println("Error handling client: " + e.getMessage());
+                System.err.println("Client error: " + e.getMessage());
             } finally {
                 try {
                     socket.close();
                     System.out.println("Client disconnected: " + socket.getInetAddress());
                 } catch (IOException e) {
-                    System.err.println("Error closing client socket: " + e.getMessage());
+                    System.err.println("Error closing socket: " + e.getMessage());
                 }
             }
         }

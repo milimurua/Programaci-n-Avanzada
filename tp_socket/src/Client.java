@@ -1,33 +1,33 @@
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Client {
+    private static final String HOST = "localhost";
+    private static final int PORT = 5000;
+
     public static void main(String[] args) {
-        String host = "localhost";
-        int port = 5000;
+        try (
+                Socket socket = new Socket(HOST, PORT);
+                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+                Scanner scanner = new Scanner(System.in)
+        ) {
+            String question = input.readLine();
+            System.out.println(question);
 
-        try (Socket socket = new Socket(host, port);
-             BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            String instruction = input.readLine();
+            System.out.println(instruction);
 
-            System.out.println("Connected to server from" + host + ":" + port);
-            String message;
+            String userAnswer = scanner.nextLine();
+            output.println(userAnswer);
 
-            do {
-                System.out.print("Send a message (o 'exit' for closed): ");
-                message = buffer.readLine();
-                output.println(message);
-
-                String respuesta = input.readLine();
-                System.out.println("server response: " + respuesta);
-
-            } while (!message.equalsIgnoreCase("exit"));
-
-            System.out.println("Cliente closed.");
+            String result = input.readLine();
+            System.out.println(result);
 
         } catch (IOException e) {
-            System.err.println("Error client: " + e.getMessage());
+            System.err.println("Client error: " + e.getMessage());
         }
     }
 }
+

@@ -7,7 +7,7 @@ public class Server {
         int port = 5000;
 
         try(ServerSocket server = new ServerSocket(port)) {
-            System.out.println("Server init");
+            System.out.println("Server initialized");
 
             Socket socketClient = server.accept();
             System.out.println("Client connected from: "+ socketClient.getInetAddress());
@@ -20,13 +20,13 @@ public class Server {
             while((message = input.readLine()) != null){
                 System.out.println("Cliente: "+ message);
                 if(message.equalsIgnoreCase("exit")){
-                    output.println("end");
+                    output.println("bye");
                     break;
                 }
-                output.println("Message recived: "+ message);
+                output.println("Message received"+ message);
             }
             socketClient.close();
-            System.out.println("Server closed");
+            System.out.println("Server disconnected");
         } catch (IOException e) {
             throw new RuntimeException("Error server: "+e.getMessage());
         }

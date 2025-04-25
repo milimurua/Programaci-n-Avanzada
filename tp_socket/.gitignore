@@ -1,29 +1,42 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# --- Java build outputs ---
+# Clases compiladas
+*.class
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Carpetas de salida comunes
+/bin/
+/out/
+/target/
+/build/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Dependencias descargadas (Maven, Gradle)
+/**/target/
+/**/build/
 
-### VS Code ###
-.vscode/
+# --- IntelliJ IDEA ---
+# Carpeta de proyecto y workspace
+/.idea/
+/*.iws
+/*.iml
+/*.ipr
 
-### Mac OS ###
+# Configuración de ejecución de IntelliJ
+/.idea_modules/
+
+# --- Otros ficheros de entorno y sistema ---
+# Ficheros del sistema operativo
 .DS_Store
+Thumbs.db
+
+# Logs y bases de datos temporales
+*.log
+*.sql
+*.sqlite
+
+# Archivos de empaquetado
+*.jar
+*.war
+*.ear
+
+# --- Si usas Gradle/Maven wrapper ---
+/gradle/
+/gradlew*

@@ -1,34 +1,45 @@
-import java.io.*;
-import java.net.*;
-import java.sql.SQLOutput;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-public class Server {
-    public static void main(String[] arg){
-        int port = 5000;
+public class Server{
+    private ServerSocket serverSocket;
 
-        try(ServerSocket server = new ServerSocket(port)) {
-            System.out.println("Server initialized");
+    public Server(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
 
-            Socket socketClient = server.accept();
-            System.out.println("Client connected from: "+ socketClient.getInetAddress());
+    //método encargado que de que corra el server
+    public void startServer(){
+        try { //Manejo de errores de entrada y salida
+            while(!serverSocket.isClosed()){
+                Socket socket =  serverSocket.accept(); //permitimos la conexión de un nuevo cliente
+                System.out.println("Se conectó un nuevo cliente");
+                ClientHandler clientHandler = new ClientHandler(socket); //instaciamos la clase clientHandler
 
-            BufferedReader input = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-            PrintWriter output = new PrintWriter(socketClient.getOutputStream(), true);
-
-            String message;
-
-            while((message = input.readLine()) != null){
-                System.out.println("Cliente: "+ message);
-                if(message.equalsIgnoreCase("exit")){
-                    output.println("bye");
-                    break;
-                }
-                output.println("Message received"+ message);
+                Thread thread = new Thread(clientHandler);
+                thread.start();
             }
-            socketClient.close();
-            System.out.println("Server disconnected");
-        } catch (IOException e) {
-            throw new RuntimeException("Error server: "+e.getMessage());
+        }catch (IOException e){
+
         }
     }
+
+    public void closeServerSocket(){
+        try{
+            if (serverSocket != null){
+                serverSocket.close();
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(5000);
+        Server server = new Server(serverSocket);
+        server.startServer();
+
+    }
 }
+

@@ -6,26 +6,39 @@ import java.net.Socket;
 public class Server{
     private ServerSocket serverSocket;
 
+    //Constructor: recibe un ServerSocket configurado para inicializar el servidor
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
     }
 
-    //método encargado que de que corra el server
+    /**
+     * Inicia el bucle principal que acepta conexiones entrantes
+     */
     public void startServer(){
-        try { //Manejo de errores de entrada y salida
+        try {
+            //mientras el socket no esté cerrado, aceptamos conexiones
             while(!serverSocket.isClosed()){
-                Socket socket =  serverSocket.accept(); //permitimos la conexión de un nuevo cliente
+                //permitimos la conexión de un nuevo cliente
+                Socket socket =  serverSocket.accept()
+                        ;
                 System.out.println("Se conectó un nuevo cliente");
-                ClientHandler clientHandler = new ClientHandler(socket); //instaciamos la clase clientHandler
 
+                //instaciamos la clase clientHandler
+                ClientHandler clientHandler = new ClientHandler(socket);
+
+                //Ejecuta el manejador de hilos independiente
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
         }catch (IOException e){
-
+            //En caso de error de E/S, se puede loguear o manejar la excepción
+            System.err.println("Error al aceptar conexiones: " + e.getMessage());
         }
     }
 
+    /**
+     * Cierra el serverSocket para dejar de aceptar conexiones
+     */
     public void closeServerSocket(){
         try{
             if (serverSocket != null){
@@ -37,11 +50,10 @@ public class Server{
     }
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
+        ServerSocket serverSocket = new ServerSocket(5000);  //crea el serverSocket
         Server server = new Server(serverSocket);
-        System.out.println("basda");
-        server.startServer();
-
+        System.out.println("Server iniciado");
+        server.startServer(); //ejecuta el método de conexiones
     }
 }
 

@@ -3,12 +3,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Cliente de chat que se conecta al servidor y envía/recibe mensajes
+ */
 public class Client {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String name;
 
+    /**
+     * Constructor: inicializa las conexiones y flujos.
+     */
     public Client(Socket socket, String name) {
         try {
             this.socket = socket;
@@ -20,9 +26,12 @@ public class Client {
         }
     }
 
-    //método para que el cliente mande un mensaje
+    /**
+     * Envía el nombre y luego lee mensajes desde la consola para enviarlos.
+     */
     public void setMessage(){
         try {
+            // Envía el nombre al servidor para registrarse
             bufferedWriter.write(name);
             bufferedWriter.newLine();
             bufferedWriter.flush();
@@ -39,6 +48,9 @@ public class Client {
         }
     }
 
+    /**
+     * Escucha en un hilo separado los mensajes que llegan del servidor.
+     */
     public void listenForMessage(){ //recibir y leer los mensajes
         new Thread(new Runnable(){
             @Override
@@ -57,6 +69,9 @@ public class Client {
         }).start();
     }
 
+    /**
+     * Cierra socket y flujos de E/S.
+     */
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
         try{ //cierra todas las conexiones
             if(bufferedReader != null){

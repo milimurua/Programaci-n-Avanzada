@@ -2,47 +2,69 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
-//runnable: hará que las instancias se ejecuten mediante un hilo separado.
+/**
+ * Manejador de comunicación con un cliente.
+ * Implementa Runnable para ser ejecutado en un hilo independiente.
+ */
 public class ClientHandler implements Runnable{
 
-    //arrayLits: realizar un seguimiento de todos nuestros clientes, resposable de la comunicación entre clientes.
+    //Lista de todos los handlers para establecer las conexióones
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
-    private Socket socket; //Establece la conexión entre el cliente y el servidor.
-    private BufferedReader bufferedReader; //Leer los mensajes del cliente
-    private BufferedWriter bufferedWriter; //Enviar mensajes a otros clientes
-    private String clientName;
 
+    private Socket socket;                  //Establece la conexión entre el cliente y el servidor.
+    private BufferedReader bufferedReader;  //Leer los mensajes del cliente.
+    private BufferedWriter bufferedWriter;  //Enviar mensajes a otros clientes
+    private String clientName;              //Identificador con el cliente
+
+    /**
+     * Contructor: configura los flujos de E/S y el cliente
+     */
     public ClientHandler(Socket socket) {
         try{
             this.socket = socket;
+            //Inicializa el escritor para enviar datos al cliente
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            //Inicializa el lector para recibir datos del cliente
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
             this.clientName = bufferedReader.readLine();
+            //añade a la lista
             clientHandlers.add(this);
+            //avisa a los otros clientes cuando uno nuevo ingresa
             broadcastMessage("Server: "+ clientHandlers + " entró al chat");
         }catch(IOException e){
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
 
+    /**
+     * Metodo principal del hilo: escucha y difunde mensajes del cliente
+     */
     @Override
     public void run() {
         String messageFromClient;
-
+        //si la conexión está activa
         while(socket.isConnected()){
             try {
+                //Lee mensaje enviados por el cliente
                 messageFromClient = bufferedReader.readLine();
+                //Envia un mensaje a todos
                 broadcastMessage(messageFromClient);
             }catch (IOException e) {
+                //cierra recursos y termina el bucle
                 closeEverything(socket, bufferedReader, bufferedWriter);
                 break;
             }
         }
     }
 
+    /**
+     * Envía un mensaje a todos los clientes conectados (excepto al emisor).
+     */
     public void broadcastMessage(String messageToSend){
         for (ClientHandler clientHandler : clientHandlers){
             try {
+                //evita que se envie al cliente que envió el mensaje
                 if (!clientHandler.clientName.equals(clientName)){
                     clientHandler.bufferedWriter.write(messageToSend);
                     clientHandler.bufferedWriter.newLine();
@@ -54,11 +76,17 @@ public class ClientHandler implements Runnable{
         }
     }
 
+    /**
+     * Elimina este handler de la lista y notifica la salida del cliente.
+     */
     public void removeClientHandler(){ //cierra la conexión del cliente
         clientHandlers.remove(this);
         broadcastMessage("Server"+ clientName + "se fue del chat");
     }
 
+    /**
+     * Cierra Socket y el flujo de mensajes
+     */
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
         removeClientHandler();
         try{ //cierra todas las conexiones

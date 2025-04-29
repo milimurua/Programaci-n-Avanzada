@@ -1,12 +1,12 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 
-/**
- * Manejador de comunicación con un cliente.
- * Implementa Runnable para ser ejecutado en un hilo independiente.
- */
-public class ClientHandler implements Runnable{
+
+public class ClientHandler implements Runnable {
 
     //Lista de todos los handlers para establecer las conexióones
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
@@ -48,8 +48,45 @@ public class ClientHandler implements Runnable{
             try {
                 //Lee mensaje enviados por el cliente
                 messageFromClient = bufferedReader.readLine();
-                //Envia un mensaje a todos
-                broadcastMessage(messageFromClient);
+
+                //AGREGADO DE COMANDOS....
+                if (messageFromClient == null) {
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    break;
+                }
+                if (messageFromClient.contains("/ayuda")) {//Genero el comando ayuda, envia un mensaje con los comandos disponibles
+
+                    //sendPrivateMessage: envia un mensaje solo al cliente que lo ejecuto
+                    sendPrivateMessage(
+                            "Comandos disponibles:\n" +
+                                    " - /ayuda : muestra esta ayuda\n" +
+                                    " - /fecha : muestra la fecha actual\n" +
+                                    " - /hora : muestra la hora actual\n" +
+                                    " - /usuarios : muestra los usuarios conectados"
+                    );
+                    //Genero el comando Fecha
+                } else if (messageFromClient.contains("/fecha")) {  //Genero el comando Fecha
+                    LocalDate fechaActual = LocalDate.now();
+                    sendPrivateMessage("Fecha actual: " + fechaActual.toString());
+
+                } else if (messageFromClient.contains("/hora")) {  //Genero el comando Hora
+                    LocalTime horaActual = LocalTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    sendPrivateMessage("Hora actual: " + horaActual.format(formatter));
+
+                } else if (messageFromClient.contains("/usuarios")) { //Genero el comando Usuarios
+                    StringBuilder usuarios = new StringBuilder("Usuarios conectados:\n");
+                    // mira todos los clientes conectados y agrega sus nombres a 'usuarios'
+                    for (ClientHandler ch : clientHandlers) {
+                        usuarios.append("- ").append(ch.clientName).append("\n");
+                    }
+                    sendPrivateMessage(usuarios.toString());
+                } else {
+                    //Envia un mensaje a todos
+                    broadcastMessage(messageFromClient);
+                }
+
+
             }catch (IOException e) {
                 //cierra recursos y termina el bucle
                 closeEverything(socket, bufferedReader, bufferedWriter);
@@ -76,6 +113,7 @@ public class ClientHandler implements Runnable{
         }
     }
 
+
     /**
      * Elimina este handler de la lista y notifica la salida del cliente.
      */
@@ -84,6 +122,18 @@ public class ClientHandler implements Runnable{
         broadcastMessage("Server"+ clientName + "se fue del chat");
     }
 
+    /**
+     * nuevo agregado: Envía un mensaje solo a este cliente (mensaje privado).
+     */
+    private void sendPrivateMessage(String mensaje) {
+        try {
+            bufferedWriter.write("Servidor: " + mensaje);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException e) {
+            closeEverything(socket, bufferedReader, bufferedWriter);
+        }
+    }
     /**
      * Cierra Socket y el flujo de mensajes
      */
@@ -103,4 +153,5 @@ public class ClientHandler implements Runnable{
             e.printStackTrace();
         }
     }
+
 }

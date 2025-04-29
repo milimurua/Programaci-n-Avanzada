@@ -4,98 +4,86 @@ import java.net.Socket;
 import java.util.Scanner;
 
 /**
- * Cliente de chat que se conecta al servidor y envía/recibe mensajes
+ * Cliente de chat que se conecta al servidor, envía/recibe mensajes
+ * y perdir acciones al servidor
  */
 public class Client {
-    private Socket socket;
-    private BufferedReader bufferedReader;
-    private BufferedWriter bufferedWriter;
-    private String name;
+    private final Socket socket;
+    private final BufferedReader reader;
+    private final BufferedWriter writer;
+    private final String name;
 
-    /**
-     * Constructor: inicializa las conexiones y flujos.
-     */
-    public Client(Socket socket, String name) {
-        try {
-            this.socket = socket;
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.name = name;
-        }catch (IOException e){
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
+    public Client(String host, int port, String name) throws IOException {
+        this.socket = new Socket(host, port);
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.name = name;
+        sendName();
     }
 
-    /**
-     * Envía el nombre y luego lee mensajes desde la consola para enviarlos.
-     */
-    public void setMessage(){
-        try {
-            // Envía el nombre al servidor para registrarse
-            bufferedWriter.write(name);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-
-            Scanner scanner = new Scanner(System.in);
-            while (socket.isConnected()) {
-                String messageToSend = scanner.nextLine();
-                bufferedWriter.write(name + ": " + messageToSend);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }
-        }catch (IOException e){
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
+    private void sendName() throws IOException {
+        writer.write(name);
+        writer.newLine();
+        writer.flush();
     }
 
-    /**
-     * Escucha en un hilo separado los mensajes que llegan del servidor.
-     */
-    public void listenForMessage(){ //recibir y leer los mensajes
-        new Thread(new Runnable(){
-            @Override
-            public void run() {
-                String messageFromChat;
+    public void start() {
+        new Thread(this::listen).start();
+        writeMessages();
+    }
 
-                while (socket.isConnected()){
-                    try {
-                        messageFromChat = bufferedReader.readLine();
-                        System.out.println(messageFromChat);
-                    }catch (IOException e){
-                        closeEverything(socket, bufferedReader, bufferedWriter);
-                    }
+    private void listen() {
+        try {
+            String message;
+            while ((message = reader.readLine()) != null) {
+                if ("bye".equalsIgnoreCase(message.trim())) {
+                    System.out.println("Conexión cerrada por el servidor.");
+                    break;
                 }
+                System.out.println(message);
             }
-        }).start();
-    }
-
-    /**
-     * Cierra socket y flujos de E/S.
-     */
-    public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
-        try{ //cierra todas las conexiones
-            if(bufferedReader != null){
-                bufferedReader.close();
-            }
-            if(bufferedWriter != null){
-                bufferedWriter.close();;
-            }
-            if(socket != null){
-                socket.close();
-            }
-        }catch (IOException e){
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Error leyendo mensajes: " + e.getMessage());
+        } finally {
+            closeClient();
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Ingresa tu nombre: ");
-        String name = scanner.nextLine();
-        Socket socket = new Socket("localhost", 5000);
-        Client client = new Client(socket, name);
-        client.listenForMessage();
-        client.setMessage();
+    private void writeMessages() {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Escribe /ayuda para ver los comandos disponibles.");
+            while (socket.isConnected()) {
+                String message = scanner.nextLine();
+                writer.write(message);
+                writer.newLine();
+                writer.flush();
+                if ("exit".equalsIgnoreCase(message.trim())) break;
+            }
+        } catch (IOException e) {
+            System.err.println("Error enviando mensaje: " + e.getMessage());
+        } finally {
+            closeClient();
+        }
+    }
 
+    private void closeClient() {
+        try {
+            if (reader != null) reader.close();
+            if (writer != null) writer.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+        } catch (IOException e) {
+            System.err.println("Error cerrando cliente: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            System.out.print("Ingresa tu nombre: ");
+            String name = sc.nextLine();
+            Client client = new Client("localhost", 5000, name);
+            client.start();
+        } catch (IOException e) {
+            System.err.println("Error al conectar: " + e.getMessage());
+        }
     }
 }

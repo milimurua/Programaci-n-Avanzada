@@ -32,8 +32,10 @@ public class ClientHandler implements Runnable {
             clientHandlers.add(this);
             //avisa a los otros clientes cuando uno nuevo ingresa
             broadcastMessage("Server: "+ clientHandlers + " entró al chat");
+            sendPrivate("Bienvenido al chat, " + clientName + ". Escribe /ayuda para ver los comandos disponibles.");
         }catch(IOException e){
             closeEverything(socket, bufferedReader, bufferedWriter);
+            throw new RuntimeException("Error al inicializar el handler de cliente", e);
         }
     }
 
@@ -42,56 +44,61 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-        String messageFromClient;
-        //si la conexión está activa
-        while(socket.isConnected()){
-            try {
-                //Lee mensaje enviados por el cliente
-                messageFromClient = bufferedReader.readLine();
-
-                //AGREGADO DE COMANDOS....
-                if (messageFromClient == null) {
-                    closeEverything(socket, bufferedReader, bufferedWriter);
+        try {
+            String message;
+            while ((message = bufferedReader.readLine()) != null) {
+                if (message.equalsIgnoreCase("exit")) {
+                    sendPrivate("bye");
                     break;
-                }
-                if (messageFromClient.contains("/ayuda")) {//Genero el comando ayuda, envia un mensaje con los comandos disponibles
-
-                    //sendPrivateMessage: envia un mensaje solo al cliente que lo ejecuto
-                    sendPrivateMessage(
-                            "Comandos disponibles:\n" +
-                                    " - /ayuda : muestra esta ayuda\n" +
-                                    " - /fecha : muestra la fecha actual\n" +
-                                    " - /hora : muestra la hora actual\n" +
-                                    " - /usuarios : muestra los usuarios conectados"
-                    );
-                    //Genero el comando Fecha
-                } else if (messageFromClient.contains("/fecha")) {  //Genero el comando Fecha
-                    LocalDate fechaActual = LocalDate.now();
-                    sendPrivateMessage("Fecha actual: " + fechaActual.toString());
-
-                } else if (messageFromClient.contains("/hora")) {  //Genero el comando Hora
-                    LocalTime horaActual = LocalTime.now();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-                    sendPrivateMessage("Hora actual: " + horaActual.format(formatter));
-
-                } else if (messageFromClient.contains("/usuarios")) { //Genero el comando Usuarios
-                    StringBuilder usuarios = new StringBuilder("Usuarios conectados:\n");
-                    // mira todos los clientes conectados y agrega sus nombres a 'usuarios'
-                    for (ClientHandler ch : clientHandlers) {
-                        usuarios.append("- ").append(ch.clientName).append("\n");
-                    }
-                    sendPrivateMessage(usuarios.toString());
+                } else if (message.startsWith("/")) {
+                    handleCommand(message);
                 } else {
-                    //Envia un mensaje a todos
-                    broadcastMessage(messageFromClient);
+                    broadcastMessage(clientName + ": " + message);
                 }
-
-
-            }catch (IOException e) {
-                //cierra recursos y termina el bucle
-                closeEverything(socket, bufferedReader, bufferedWriter);
-                break;
             }
+        } catch (IOException e) {
+            System.err.println("Error en la comunicación con " + clientName + ": " + e.getMessage());
+        } finally {
+            closeEverything(socket, bufferedReader, bufferedWriter);
+        }
+    }
+
+    private void handleCommand(String command) throws IOException {
+        switch (command) {
+            case "/ayuda":
+                sendPrivate("Comandos disponibles:\n" +
+                        " - /ayuda: muestra esta ayuda\n" +
+                        " - /fecha: muestra la fecha actual\n" +
+                        " - /hora: muestra la hora actual\n" +
+                        " - /usuarios: muestra los usuarios conectados\n" +
+                        " - exit: salir del chat");
+                break;
+            case "/fecha":
+                sendPrivate("Fecha actual: " + LocalDate.now());
+                break;
+            case "/hora":
+                sendPrivate("Hora actual: " +
+                        LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                break;
+            case "/usuarios":
+                StringBuilder sb = new StringBuilder("Usuarios conectados:\n");
+                for (ClientHandler handler : clientHandlers) {
+                    sb.append(" - ").append(handler.clientName).append("\n");
+                }
+                sendPrivate(sb.toString());
+                break;
+            default:
+                sendPrivate("Comando no reconocido. Escribe /ayuda para ver la lista de comandos.");
+        }
+    }
+
+    private void sendPrivate(String message) {
+        try {
+            bufferedWriter.write("Servidor: " + message);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException e) {
+            closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
 

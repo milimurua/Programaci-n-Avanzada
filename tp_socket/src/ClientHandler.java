@@ -92,6 +92,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * nuevo agregado: Envía un mensaje solo a este cliente (mensaje privado).
+     */
     private void sendPrivate(String message) {
         try {
             bufferedWriter.write("Servidor: " + message);
@@ -124,23 +127,11 @@ public class ClientHandler implements Runnable {
     /**
      * Elimina este handler de la lista y notifica la salida del cliente.
      */
-    public void removeClientHandler(){ //cierra la conexión del cliente
+    public void removeClientHandler() { //cierra la conexión del cliente
         clientHandlers.remove(this);
-        broadcastMessage("Server"+ clientName + "se fue del chat");
+        broadcastMessage("Server" + clientName + "se fue del chat");
     }
 
-    /**
-     * nuevo agregado: Envía un mensaje solo a este cliente (mensaje privado).
-     */
-    private void sendPrivateMessage(String mensaje) {
-        try {
-            bufferedWriter.write("Servidor: " + mensaje);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-        } catch (IOException e) {
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
-    }
     /**
      * Cierra Socket y el flujo de mensajes
      */

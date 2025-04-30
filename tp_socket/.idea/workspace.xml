@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73c4f158-c3e4-48d0-95d8-1da60b734837" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Question.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/QuizServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/tp_socket.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/tp_socket.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +82,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+    <configuration name="Server" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Server" />
       <module name="tp_socket" />
       <method v="2">
@@ -92,14 +90,13 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.Server" />
       <item itemvalue="Application.Client" />
       <item itemvalue="Application.MultiClientServer" />
       <item itemvalue="Application.MultipleClientServer" />
-      <item itemvalue="Application.Server" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Server" />
         <item itemvalue="Application.Client" />
         <item itemvalue="Application.MultiClientServer" />
         <item itemvalue="Application.MultipleClientServer" />

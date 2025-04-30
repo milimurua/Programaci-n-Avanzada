@@ -129,7 +129,7 @@ public class ClientHandler implements Runnable {
      */
     public void removeClientHandler() { //cierra la conexión del cliente
         clientHandlers.remove(this);
-        broadcastMessage("Server" + clientName + "se fue del chat");
+        broadcastMessage("Server: " + clientName + " se fue del chat");
     }
 
     /**

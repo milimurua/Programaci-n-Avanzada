@@ -1,11 +1,10 @@
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
 /**
  * Cliente de chat que se conecta al servidor, envía/recibe mensajes
- * y perdir acciones al servidor
+ * y pide acciones al servidor
  */
 public class Client {
     private final Socket socket;
@@ -36,7 +35,8 @@ public class Client {
         try {
             String message;
             while ((message = reader.readLine()) != null) {
-                if ("bye".equalsIgnoreCase(message.trim())) {
+                // Detecta "bye" independientemente del prefijo
+                if (message.toLowerCase().contains("bye")) {
                     System.out.println("Conexión cerrada por el servidor.");
                     break;
                 }
@@ -80,6 +80,7 @@ public class Client {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.print("Ingresa tu nombre: ");
             String name = sc.nextLine();
+            // Conecta al puerto 1234 para coincidir con ChatServer
             Client client = new Client("localhost", 5000, name);
             client.start();
         } catch (IOException e) {

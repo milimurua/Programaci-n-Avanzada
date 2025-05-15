@@ -1,26 +1,23 @@
 # --- Java build outputs ---
 # Clases compiladas
 *.class
-
-# Carpetas de salida comunes
-/bin/
-/out/
-/target/
-/build/
+# Carpetas de salida comunes (en cualquier nivel)
+bin/
+out/
+target/
+build/
 
 # Dependencias descargadas (Maven, Gradle)
-/**/target/
-/**/build/
+target/
+build/
 
 # --- IntelliJ IDEA ---
-# Carpeta de proyecto y workspace
-/.idea/
-/*.iws
-/*.iml
-/*.ipr
-
-# Configuración de ejecución de IntelliJ
-/.idea_modules/
+# Carpetas y archivos de configuración de proyecto
+.idea/
+.idea_modules/
+*.iws
+*.iml
+*.ipr
 
 # --- Otros ficheros de entorno y sistema ---
 # Ficheros del sistema operativo
@@ -37,6 +34,6 @@ Thumbs.db
 *.war
 *.ear
 
-# --- Si usas Gradle/Maven wrapper ---
-/gradle/
-/gradlew*
+# --- Gradle/Maven wrapper ---
+gradle/
+gradlew*

@@ -1,0 +1,48 @@
+# ====================
+# Java
+# ====================
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Java caching
+*.cache
+
+# ====================
+# IDEs & Editors
+# ====================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+
+# ====================
+# OS generated
+# ====================
+.DS_Store
+Thumbs.db
+

@@ -82,7 +82,7 @@ public class FormContactPanel extends JPanel {
         Contact c = getContactoFromFields();
         List<String> errores = Validation.validate(c);
         if (errores.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "✔ Datos válidos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Datos válidos", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this,
                     String.join("\n", errores),

@@ -11,9 +11,9 @@ public class Client {
     private final Consumer<String> onMessage;
 
     public Client(String host, int port, String name, Consumer<String> onMessage) throws IOException {
-        this.socket    = new Socket(host, port);
-        this.reader    = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.writer    = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.socket = new Socket(host, port);
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.onMessage = onMessage;
 
         // enviar nombre
@@ -30,7 +30,7 @@ public class Client {
                     onMessage.accept(line);
                 }
             } catch (IOException e) {
-                onMessage.accept("** Conexión perdida: " + e.getMessage());
+                onMessage.accept("Conexión perdida: " + e.getMessage());
             }
         }).start();
     }
@@ -41,7 +41,7 @@ public class Client {
             writer.newLine();
             writer.flush();
         } catch (IOException e) {
-            onMessage.accept("** Error enviando: " + e.getMessage());
+            onMessage.accept("Error enviando: " + e.getMessage());
         }
     }
 

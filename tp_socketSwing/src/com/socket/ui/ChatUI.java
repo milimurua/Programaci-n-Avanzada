@@ -15,7 +15,7 @@ public class ChatUI extends JFrame {
 
     public ChatUI(String host, int port, String name) {
         super("Chat: " + name);
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // manejamos el cierre nosotros
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); //el usuario cierra todo
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -46,9 +46,6 @@ public class ChatUI extends JFrame {
         south.add(tfInput, BorderLayout.CENTER);
         south.add(btnSend, BorderLayout.EAST);
         add(south, BorderLayout.SOUTH);
-
-        // Directamente habilitamos enviar;
-        // se asumirá que el servidor ya está corriendo al lanzar la UI
         btnSend.setEnabled(true);
 
         // Conectar en segundo plano, sin mostrar texto de estado
